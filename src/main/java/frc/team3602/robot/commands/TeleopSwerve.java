@@ -5,12 +5,12 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.team3602.robot.Constants;
 import frc.team3602.robot.subsystems.Swerve;
 
 
-public class TeleopSwerve extends CommandBase {    
+public class TeleopSwerve extends Command {    
     private Swerve s_Swerve;    
     private DoubleSupplier translationSup;
     private DoubleSupplier strafeSup;

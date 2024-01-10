@@ -5,10 +5,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team3602.lib.util.CANOptimization;
@@ -18,14 +21,16 @@ import frc.team3602.robot.SwerveModule;
 public class Swerve extends SubsystemBase {
   public SwerveDriveOdometry swerveOdometry;
   public SwerveModule[] mSwerveMods;
-  public static Pigeon2 gyro;
+  private AHRS navX;
 
   public Swerve() {
-    gyro = new Pigeon2(Constants.Swerve.pigeonID);
-    gyro.configFactoryDefault();
+      try {
+      navX = new AHRS(SPI.Port.kMXP);
+    } catch (RuntimeException ex) {
+      System.out.println("ERROR: Unable to instantiate navX" + ex.getMessage());
+    }
+    
     zeroGyro();
-
-    CANOptimization.optimizeCTREGyro(gyro);
 
     mSwerveMods = new SwerveModule[] {new SwerveModule(0, Constants.Swerve.Mod0.constants),
         new SwerveModule(1, Constants.Swerve.Mod1.constants),
@@ -91,22 +96,22 @@ public class Swerve extends SubsystemBase {
   }
 
   public void zeroGyro() {
-    gyro.setYaw(0);
+    navX.reset();
   }
 
   public Rotation2d getYaw() {
-    return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - gyro.getYaw())
-        : Rotation2d.fromDegrees(gyro.getYaw());
+    return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - navX.getYaw())
+        : Rotation2d.fromDegrees(navX.getYaw());
   }
 
   public Rotation2d getRoll() {
-    return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - gyro.getRoll())
-        : Rotation2d.fromDegrees(gyro.getRoll());
+    return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - navX.getRoll())
+        : Rotation2d.fromDegrees(navX.getRoll());
   }
 
   public Rotation2d getPitch() {
-    return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - gyro.getPitch())
-        : Rotation2d.fromDegrees(gyro.getPitch());
+    return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - navX.getPitch())
+        : Rotation2d.fromDegrees(navX.getPitch());
   }
 
   public void resetModulesToAbsolute() {
